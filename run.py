@@ -11,10 +11,18 @@ Environment variables:
 """
 
 import os
+from flask import render_template
 from app import create_app, db
 
 # Create app instance
 app = create_app(os.getenv('FLASK_ENV', 'development'))
+
+
+# Home route
+@app.route('/')
+def home():
+    """Home page."""
+    return render_template('index.html')
 
 
 # CLI commands for database management
@@ -46,4 +54,4 @@ if __name__ == '__main__':
     print(f"Server running on: http://localhost:{port}")
     print(f"{'='*60}\n")
     
-    app.run(debug=debug, port=port)
+    app.run(debug=debug, port=port, host='0.0.0.0')

@@ -103,15 +103,8 @@ def setup_logging(app):
 def register_blueprints(app):
     """Register Flask blueprints (routes)."""
     
-    # TODO: Import and register blueprints when they're created
-    # from app.routes.auth import auth_bp
-    # from app.routes.events import events_bp
-    # from app.routes.volunteers import volunteers_bp
-    # app.register_blueprint(auth_bp)
-    # app.register_blueprint(events_bp)
-    # app.register_blueprint(volunteers_bp)
-    
-    pass
+    from app.routes.auth import auth_bp
+    app.register_blueprint(auth_bp)
 
 
 def register_error_handlers(app):

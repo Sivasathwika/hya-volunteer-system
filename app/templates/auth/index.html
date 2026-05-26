@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Home - HYA Volunteer System{% endblock %}
+
+{% block content %}
+<div class="row align-items-center" style="min-height: 60vh;">
+    <div class="col-md-6">
+        <h1 class="display-4 fw-bold mb-4">Welcome to HYA Volunteer Management System</h1>
+        
+        <p class="lead mb-4">
+            Join thousands of volunteers making a difference in our community. 
+            Track your events, earn certificates, and impact lives together.
+        </p>
+        
+        {% if not current_user.is_authenticated %}
+        <div class="d-grid gap-2 d-sm-flex">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4 gap-3">
+                Get Started
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg px-4">
+                Sign In
+            </a>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">Welcome back, <strong>{{ current_user.first_name }}</strong>!</p>
+        </div>
+        
+        {% if current_user.is_admin() %}
+            <a href="/admin/dashboard" class="btn btn-primary btn-lg">Go to Admin Dashboard</a>
+        {% else %}
+            <a href="/volunteer/dashboard" class="btn btn-primary btn-lg">Go to Your Dashboard</a>
+        {% endif %}
+        {% endif %}
+    </div>
+    
+    <div class="col-md-6 text-center">
+        <div style="font-size: 150px;">🙋</div>
+        <h3 class="mt-3">Volunteer Management Made Easy</h3>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mt-5 mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div style="font-size: 48px; margin-bottom: 1rem;">📅</div>
+                <h5 class="card-title">Event Management</h5>
+                <p class="card-text">
+                    Discover and register for volunteer events in your community.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div style="font-size: 48px; margin-bottom: 1rem;">📊</div>
+                <h5 class="card-title">Track Hours</h5>
+                <p class="card-text">
+                    Monitor your volunteer hours and contributions.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div style="font-size: 48px; margin-bottom: 1rem;">🏆</div>
+                <h5 class="card-title">Earn Certificates</h5>
+                <p class="card-text">
+                    Get recognized for your service with certificates.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
