@@ -104,7 +104,14 @@ def register_blueprints(app):
     """Register Flask blueprints (routes)."""
     
     from app.routes.auth import auth_bp
+    from app.routes.volunteer import volunteer_bp
+    from app.routes.admin import admin_bp
+    from app.routes.events import events_bp
+    
     app.register_blueprint(auth_bp)
+    app.register_blueprint(volunteer_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(events_bp)
 
 
 def register_error_handlers(app):

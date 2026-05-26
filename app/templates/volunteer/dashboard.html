@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - HYA Volunteer System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Welcome, {{ current_user.first_name }}!</h1>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Hours</h5>
+                    <h2>{{ stats.total_hours }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Events Attended</h5>
+                    <h2>{{ stats.events_attended }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Certificates</h5>
+                    <h2>{{ stats.certificates }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Profile Complete</h5>
+                    <h2>{% if current_user.profile_complete %}✓{% else %}✗{% endif %}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{{ url_for('volunteer.profile') }}" class="btn btn-primary">Edit Profile</a>
+            <a href="{{ url_for('volunteer.skills') }}" class="btn btn-secondary">Manage Skills</a>
+            <a href="{{ url_for('events.list_events') }}" class="btn btn-success">Browse Events</a>
+            <a href="{{ url_for('volunteer.certificates') }}" class="btn btn-info">View Certificates</a>
+        </div>
+    </div>
+    
+    <!-- Upcoming Events -->
+    <div class="row">
+        <div class="col-md-8">
+            <h3 class="mb-3">Upcoming Events</h3>
+            {% if upcoming_events %}
+                <div class="list-group">
+                    {% for event, registration in upcoming_events %}
+                    <a href="{{ url_for('events.event_detail', event_id=event.id) }}" 
+                       class="list-group-item list-group-item-action">
+                        <h5>{{ event.title }}</h5>
+                        <p class="mb-1">{{ event.event_date | strftime('%B %d, %Y') }} at {{ event.start_time | strftime('%I:%M %p') }}</p>
+                        <small class="text-muted">{{ event.location }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No upcoming approved events. <a href="{{ url_for('events.list_events') }}">Browse events</a></p>
+            {% endif %}
+        </div>
+        
+        <!-- Recent Certificates -->
+        <div class="col-md-4">
+            <h3 class="mb-3">Recent Certificates</h3>
+            {% if recent_certificates %}
+                <div class="list-group">
+                    {% for cert in recent_certificates %}
+                    <div class="list-group-item">
+                        <h6>{{ cert.certificate_type | upper }}</h6>
+                        <small class="text-muted">Issued {{ cert.issued_date | strftime('%B %d, %Y') }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No certificates yet. <a href="{{ url_for('events.list_events') }}">Register for events</a></p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
