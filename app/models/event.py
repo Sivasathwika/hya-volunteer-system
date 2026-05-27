@@ -168,6 +168,17 @@ class Event(BaseModel):
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
+    def current_registration_count(self):
+        """Get count of approved registrations."""
+        from sqlalchemy import func
+        return db.session.query(func.count(EventRegistration.id)).filter_by(
+        event_id=self.id,
+        registration_status=EventRegistration.STATUS_APPROVED
+    ).scalar() or 0
+
+    def has_capacity(self):
+        """Check if event has available slots."""
+        return self.current_registration_count < self.capacity
 
 
 class EventRegistration(BaseModel):
@@ -275,3 +286,12 @@ class EventRegistration(BaseModel):
             'approved_at': self.approved_at.isoformat() if self.approved_at else None,
             'waitlist_position': self.waitlist_position
         }
+    def mark_attended(self):
+        """Mark registration as attended after check-out."""
+        self.registration_status = self.STATUS_ATTENDED
+        db.session.commit()
+
+    def mark_no_show(self):
+        """Mark as no-show (checked in but incomplete)."""
+        self.registration_status = self.STATUS_NO_SHOW
+        db.session.commit()

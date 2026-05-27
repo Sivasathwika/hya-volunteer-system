@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance History - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>{{ event.title }} - Attendance History</h1>
+            <p class="text-muted">{{ event.event_date | strftime('%B %d, %Y') }} at {{ event.location }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('attendance.qr_scanner', event_id=event.id) }}" class="btn btn-primary">
+                📱 Back to Scanner
+            </a>
+        </div>
+    </div>
+    
+    <!-- Summary Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Registered</h5>
+                    <h2>{{ attendances | length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Checked Out</h5>
+                    <h2>{{ attendances | selectattr('status', 'equalto', 'checked_out') | list | length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Checked In</h5>
+                    <h2>{{ attendances | selectattr('status', 'equalto', 'checked_in') | list | length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Total Hours</h5>
+                    <h2>
+                        {% set total = attendances | selectattr('hours_served') | map(attribute='hours_served') | sum %}
+                        {{ "%.1f" | format(total) }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attendance Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">📋 Volunteer Attendance Records</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Volunteer</th>
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                        <th>Hours</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attendance in attendances %}
+                    <tr>
+                        <td>
+                            <strong>{{ attendance.volunteer.first_name }} {{ attendance.volunteer.last_name }}</strong>
+                            <br>
+                            <small class="text-muted">{{ attendance.volunteer.email }}</small>
+                        </td>
+                        <td>
+                            {% if attendance.check_in_time %}
+                                {{ attendance.check_in_time.strftime('%I:%M %p') }}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if attendance.check_out_time %}
+                                {{ attendance.check_out_time.strftime('%I:%M %p') }}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if attendance.hours_served %}
+                                <strong>{{ "%.2f" | format(attendance.hours_served) }}h</strong>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if attendance.status == 'checked_out' %}
+                                <span class="badge bg-success">✓ Completed</span>
+                            {% elif attendance.status == 'checked_in' %}
+                                <span class="badge bg-warning text-dark">→ In Progress</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Incomplete</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if attendance.status == 'checked_in' %}
+                                <button class="btn btn-sm btn-danger" onclick="markIncomplete({{ attendance.id }})">
+                                    Mark Incomplete
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Export Button -->
+    <div class="mt-4">
+        <button class="btn btn-secondary" onclick="exportToCSV()">
+            📥 Export as CSV
+        </button>
+    </div>
+</div>
+
+<script>
+function markIncomplete(attendanceId) {
+    if (confirm('Mark this volunteer as incomplete (no-show)?')) {
+        fetch(`/attendance/volunteer/${attendanceId}/mark-incomplete`, {
+            method: 'POST'
+        }).then(r => r.json()).then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    }
+}
+
+function exportToCSV() {
+    const table = document.querySelector('table');
+    let csv = 'Volunteer,Email,Check-In,Check-Out,Hours,Status\n';
+    
+    document.querySelectorAll('tbody tr').forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const volunteer = cells[0].textContent.split('\n')[0].trim();
+        const email = cells[0].textContent.split('\n')[1].trim();
+        const checkIn = cells[1].textContent.trim();
+        const checkOut = cells[2].textContent.trim();
+        const hours = cells[3].textContent.trim();
+        const status = cells[4].textContent.trim();
+        
+        csv += `"${volunteer}","${email}","${checkIn}","${checkOut}","${hours}","${status}"\n`;
+    });
+    
+    const link = document.createElement('a');
+    link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    link.download = `{{ event.title }}_attendance.csv`;
+    link.click();
+}
+</script>
+{% endblock %}

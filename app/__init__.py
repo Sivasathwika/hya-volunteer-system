@@ -107,11 +107,14 @@ def register_blueprints(app):
     from app.routes.volunteer import volunteer_bp
     from app.routes.admin import admin_bp
     from app.routes.events import events_bp
+    from app.routes.attendance import attendance_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(volunteer_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(events_bp)
+    app.register_blueprint(attendance_bp)
+    
 
 
 def register_error_handlers(app):
