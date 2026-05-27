@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Home - HYA Volunteer System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h1 class="display-4">Welcome to HYA</h1>
+            <h2 class="text-muted">Volunteer Management System</h2>
+            <p class="lead mt-4">Manage events, track volunteers, and measure impact with our comprehensive platform.</p>
+            
+            <div class="mt-4">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin() %}
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary btn-lg">Admin Dashboard</a>
+                    {% else %}
+                        <a href="{{ url_for('volunteer.dashboard') }}" class="btn btn-primary btn-lg">Volunteer Dashboard</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Register</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">Login</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <img src="https://via.placeholder.com/400x300?text=HYA+Volunteer+System" class="img-fluid rounded" alt="HYA Volunteer System">
+        </div>
+    </div>
+    
+    <hr class="my-5">
+    
+    <div class="row mt-5">
+        <div class="col-md-4 text-center mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📋 Event Management</h5>
+                    <p class="card-text">Create and manage volunteer events with ease.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 text-center mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">👥 Volunteer Tracking</h5>
+                    <p class="card-text">Track volunteer hours and contributions.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 text-center mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📊 Analytics</h5>
+                    <p class="card-text">Measure impact with detailed reports.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
